@@ -12,21 +12,28 @@ using std::endl;
 std::default_random_engine generator; // Объекты, генерирующие равномерно распределенные числа.
 std::uniform_int_distribution<int> distribution(1,100); // Объекты, которые преобразуют последовательности чисел, сгенерированные генератором, в последовательности чисел, 
                                                         // которые соответствуют определенному распределению случайных величин.
-int digitsSum(int n, bool highestNumber) {
-  int sum{0}, max_num{0};
+int digitsSum(int n, bool highestNumber, bool same_numerals) {
+  int sum{0}, max_num{0}, num{n % 10};
   while (n != 0) {
     sum += n % 10;
     max_num = std::max(max_num, n % 10);
+    if (same_numerals && n % 10 != num) return false;
     n /= 10;
   }
   if (highestNumber) return max_num;
   return sum;
 }
 void task1(){
+    bool go = true;
     int n[10000]{0};
-    for (int i = 0; i< 10000; i++) n[i] = i + 1;
-    for (int i = 1; i < 10000; i++){
-        for (int j = i; j > 0 && n[j-1] < n[j]; j--) swap(n[j-1],n[j]);
+    for (int i = 0; i < 10000; i++){
+        n[i] = i + 1; 
+        if (!digitsSum(n[i], false, true)) go = false;
+    }
+    if (go){
+        for (int i = 1; i < 10000; i++){
+            for (int j = i; j > 0 && n[j-1] < n[j]; j--) swap(n[j-1],n[j]);
+        }
     }
     for (int i = 0; i < 10000; i++) std::cout<<n[i]<<" , ";
 }
@@ -35,13 +42,13 @@ void task2(){
     for (int i = 0; i < 1000; i++) n[i] = i + 1;
     for (int i = 1; i < 1000; i++){
         for (int j = i; j > 0; j--){
-            if (digitsSum(n[j], false) == digitsSum(n[j-1], false)){
-                if (digitsSum(n[j], true) == digitsSum(n[j-1], true)){
+            if (digitsSum(n[j], false, false) == digitsSum(n[j-1], false, false)){
+                if (digitsSum(n[j], true, false) == digitsSum(n[j-1], true, false)){
                     n[j-1] > n[j] ? swap(n[j-1], n[j]) : j--;
                 }
-                else digitsSum(n[j-1], true) > digitsSum(n[j], true) ? swap(n[j-1], n[j]) : j--;
+                else digitsSum(n[j-1], true, false) > digitsSum(n[j], true, false) ? swap(n[j-1], n[j]) : j--;
             }
-            else digitsSum(n[j-1], false) > digitsSum(n[j], false) ? swap(n[j-1], n[j]) : j--;
+            else digitsSum(n[j-1], false, false) > digitsSum(n[j], false, false) ? swap(n[j-1], n[j]) : j--;
         }
     }
     for (int i = 0; i < 1000; i++) std::cout<<n[i]<<" , ";
@@ -91,7 +98,7 @@ void task3(){
     }
 }
 bool isPalindrome(int n){
-    if (digitsSum(n, false) == digitsSum(n, true)) return false; 
+    if (digitsSum(n, false, false) == digitsSum(n, true, false)) return false; 
     int digit, num, rev = 0;
     num = n;
     do { digit = n % 10; rev = (rev * 10) + digit; n = n / 10; } while (n != 0);
@@ -106,7 +113,7 @@ void task4(){
     std::cout<<endl;
 
     for (int i = 0; i < n.size(); i++){
-        if (digitsSum(n[i], false) == 10){
+        if (digitsSum(n[i], false, false) == 10){
             n.erase(n.begin() + i);
             i--;
         }
@@ -123,8 +130,8 @@ void task4(){
 
 int main(){
     // varian 7
-    //task1();
+    task1();
     //task2();
-    task3();
+    //task3();
     //task4();
 }
